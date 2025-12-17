@@ -4,6 +4,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Function to handle participant deletion
+  async function handleDeleteParticipant(activityName, email, listItem) {
+    try {
+      const response = await fetch(
+        `/activities/${encodeURIComponent(activityName)}/unregister?email=${encodeURIComponent(email)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Remove the list item from the DOM
+        listItem.remove();
+        
+        // Show success message
+        messageDiv.textContent = result.message;
+        messageDiv.className = "success";
+        messageDiv.classList.remove("hidden");
+
+        // Hide message after 5 seconds
+        setTimeout(() => {
+          messageDiv.classList.add("hidden");
+        }, 5000);
+
+        // Refresh activities to update spot availability
+        setTimeout(() => {
+          fetchActivities();
+        }, 500);
+      } else {
+        messageDiv.textContent = result.detail || "Failed to unregister participant";
+        messageDiv.className = "error";
+        messageDiv.classList.remove("hidden");
+      }
+    } catch (error) {
+      messageDiv.textContent = "Failed to unregister participant. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      console.error("Error unregistering:", error);
+    }
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -40,7 +83,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Array.isArray(details.participants) && details.participants.length > 0) {
           details.participants.forEach((p) => {
             const li = document.createElement("li");
-            li.textContent = p;
+            
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = p;
+            li.appendChild(emailSpan);
+            
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.textContent = "Delete";
+            deleteBtn.type = "button";
+            deleteBtn.onclick = (e) => {
+              e.preventDefault();
+              handleDeleteParticipant(name, p, li);
+            };
+            li.appendChild(deleteBtn);
+            
             participantsList.appendChild(li);
           });
         } else {
@@ -88,6 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        
+        // Refresh activities to show the new participant and updated spot availability
+        setTimeout(() => {
+          fetchActivities();
+        }, 500);
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";

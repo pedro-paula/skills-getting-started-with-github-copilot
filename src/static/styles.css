@@ -160,32 +160,41 @@ footer {
 }
 
 .participants-list {
-  list-style: disc outside;
-  padding-left: 20px;
+  list-style: none;
+  padding-left: 0;
   margin: 0;
   max-height: 120px;
   overflow: auto;
 }
 
 .participants-list li {
-  padding: 4px 0;
+  padding: 6px 0;
   color: #333;
   font-size: 14px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-/* subtle dot avatar for each participant */
-.participants-list li::before {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #1976d2;
-  flex: 0 0 8px;
-  margin-right: 6px;
+.participants-list li .participant-email {
+  flex: 1;
+}
+
+.delete-btn {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.delete-btn:hover {
+  background-color: #b71c1c;
 }
 
 .participants-list li.muted {
